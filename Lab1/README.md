@@ -9,4 +9,4 @@
 2. Распарсить код страницы, выцепив необходимые данные по html-тегам.
 3. Сохранить данные на диск в указанном в варианте виде.
 
-Ноутбук с заданием и примерами кода доступен по [ссылке](https://colab.research.google.com/drive/11T6k3NnCsg1yDuxObXZsbGOFt8Y0N0uE#scrollTo=5QneJD4iOORr).
+Ноутбук с заданием и примерами кода доступен по [ссылке]().https://colab.research.google.com/drive/11T6k3NnCsg1yDuxObXZsbGOFt8Y0N0uE#scrollTo=5QneJD4iOORr
