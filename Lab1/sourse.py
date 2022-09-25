@@ -65,16 +65,17 @@ def get_and_download(url, key):
     
 
 
-def main(url):
+def main():
     if not os.path.isdir("dataset"):
         os.mkdir("dataset")
     os.chdir("dataset")
-    key1 = "zebra"
-    key2 = "bay horse"
-    amount1 = get_and_download(url, key1)
-    print("Successfully uploaded " + str(amount1) + " "+ key1 + " images.")
-    amount2 = get_and_download(url, key2)
-    print("Successfully uploaded " + str(amount2) + " "+ key2 + " images.")
+    KEY1 = "zebra"
+    URL = "https://yandex.ru/images/"
+    KEY2 = "bay horse"
+    amount1 = get_and_download(URL, KEY1)
+    print("Successfully uploaded " + str(amount1) + " "+ KEY1 + " images.")
+    amount2 = get_and_download(URL, KEY2)
+    print("Successfully uploaded " + str(amount2) + " "+ KEY2 + " images.")
     
 
-main("https://yandex.ru/images/")
+main()
