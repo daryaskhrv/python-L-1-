@@ -21,11 +21,13 @@ from urllib.parse import urljoin, urlparse
 
 def is_valid(url):
     """Проверяет, является ли url допустимым URL"""
+
     parsed = urlparse(url)
     return bool(parsed.netloc) and bool(parsed.scheme)
 
 def get_all_images(url, key):
     """Возвращает определенное количество URL-адресов изображений по одному `url`"""
+
     urls = []
     page = 1
     while True:
@@ -47,6 +49,7 @@ def get_all_images(url, key):
 
 def download(url, pathname, index): 
     """Загружаем одно изображение по адресу `url` в папку"""
+
     if not os.path.isdir(pathname):
         os.mkdir(pathname)
     request_img = requests.get(url)
@@ -56,6 +59,7 @@ def download(url, pathname, index):
 
 def get_and_download(url, key):
     """Вызывает основные функции, возвращает кол-во изображений для одного key"""
+
     imgs = get_all_images(url, key)
     i = 1 
     for img in imgs:
@@ -77,5 +81,10 @@ def main():
     amount2 = get_and_download(URL, KEY2)
     print(f"Successfully uploaded {amount2} {KEY2} images.")
     
+if __name__ == "__main__":
+    print("is_valid - ",is_valid.__doc__)
+    print("get_all_images - ",get_all_images.__doc__)
+    print("download - ",download.__doc__)
+    print("get_and_download - ",get_and_download.__doc__)
+    main()
 
-main()
