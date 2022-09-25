@@ -13,17 +13,19 @@
 #После загрузки всех изображений, необходимо их просмотреть на соответствие классу. 
 #В случае замеченных несоответствий необходимо будет дополнить набор данных до минимального размера. 
 #Для избежания подобных ситуаций рекомендуется загружать изображения с запасом.
-import os, sys, requests, cv2
+import os, requests
 from urllib import request
 from re import search
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 
-def is_valid(url): #является ли url допустимым URL
+def is_valid(url):
+    '''Проверяет, является ли url допустимым URL'''
     parsed = urlparse(url)
     return bool(parsed.netloc) and bool(parsed.scheme)
 
 def get_all_images(url, key):
+    '''Возвращает определенное количество URL‑адресов изображений по одному `url`'''
     urls = []
     page = 1
     while True:
@@ -39,38 +41,28 @@ def get_all_images(url, key):
             if is_valid(img_url):
                     urls.append(img_url)
         page += 1
-        if len(urls) > 50: 
+        if len(urls) > 1100: 
             break
     return urls
 
 def download(url, pathname, index): 
+    '''Загружаем одно изображение по адресу `url` в папку'''
     if not os.path.isdir(pathname):
         os.mkdir(pathname)
     request_img = requests.get(url)
     save = open(pathname + "/"+ str(index).zfill(4) + ".jpg", "wb") 
     save.write(request_img.content) 
-    save.close() 
-
-def cmp(image_1: cv2.Mat, image_2: cv2.Mat) -> bool:
-    return image_1 == image_2   
+    save.close()   
 
 def get_and_download(url, key):
+    '''Вызывает основные функции, возвращает кол-во изображений для одного key'''
     imgs = get_all_images(url, key)
     i = 1 
     for img in imgs:
         download(img, key, i)
         i += 1
     return i
-    '''k=1
-    while k<i:
-        print("ijdij",os.getcwd())
-        srttmp = os.getcwd
-        str = srttmp + "/"+ "zebra" + "/"+str(k).zfill(4) + ".jpg"
-        print(str)
-        image_1 = cv2.imread('C:/Users/user/python-L-1-/dataset/zebra/0003.jpg')
-        cv2.imshow('window_name', image_1) 
-        cv2.waitKey(0)
-        k = 1200'''
+    
 
 
 def main(url):
@@ -84,17 +76,5 @@ def main(url):
     amount2 = get_and_download(url, key2)
     print("Successfully uploaded " + str(amount2) + " "+ key2 + " images.")
     
-    '''image = cv2.imread('C:/Users/user/python-L-1-/dataset/zebra/0003.jpg')  
-    print(image.shape) 
-    #cv2.imshow('window_name', image) 
-    #cv2.waitKey(0)
-
-    image_1 = cv2.imread("dataset/zebra/0010.jpg")
-    image_2 = cv2.imread("dataset/zebra/0020.jpg")
-    tmp = cmp(image_1, image_2)
-    if tmp == False:
-        print("Yes")
-    else:
-        print("No")'''
 
 main("https://yandex.ru/images/")
