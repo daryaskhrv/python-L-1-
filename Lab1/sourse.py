@@ -19,47 +19,82 @@ from re import search
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 
-#https://yandex.ru/images/search?text=zebra
-search = {'text' : 'zebra'}
-URL = "https://yandex.ru/images/" 
-html_page = requests.get(URL + "search", params=search)
-# html_page.text - хранит html код веб-страницы
-html = BeautifulSoup(html_page.content, "html.parser")
-urls = []
-
-def is_valid(url):
-     #является ли url допустимым URL
+def is_valid(url): #является ли url допустимым URL
     parsed = urlparse(url)
     return bool(parsed.netloc) and bool(parsed.scheme)
 
-def get_all_images(url):
-    for img in html.find_all("img"):
-        img_url = img.attrs.get("src")
-        if not img_url:
-            # если img не содержит атрибута src, просто пропустите
-            continue
-        #img_url = urljoin(url, img_url) 
-        #сделать URL абсолютным, присоединив домен к только что извлеченному URL
-        if is_valid(img_url):
-                urls.append(img_url)
+def get_all_images(url, key):
+    urls = []
+    page = 1
+    while True:
+        URL = url + "search?p=" + str(page) + "&text=" + key
+        html_page = requests.get(URL, headers={"User-Agent":"Mozilla/5.0"})
+        html = BeautifulSoup(html_page.content, "html.parser")
+        for img in html.find_all("img"):
+            img_url = img.attrs.get("src")
+            if not img_url:
+                continue
+            img_url = urljoin(URL, img_url) 
+            #сделать URL абсолютным, присоединив домен к только что извлеченному URL
+            if is_valid(img_url):
+                    urls.append(img_url)
+        page += 1
+        if len(urls) > 50: 
+            break
     return urls
 
-i = 1
-def download(url, pathname):
-    global i
+def download(url, pathname, index): 
     if not os.path.isdir(pathname):
         os.mkdir(pathname)
     request_img = requests.get(url)
-    save = open(pathname + "/"+ str(i) + ".jpg", "wb") # открытие потока с типом wb
-    i += 1
-    save.write(request_img.content) # запись в файл
-    save.close() # закрытие файлового потока
-    
-def main(url, path):
-    # получить все изображения
-    imgs = get_all_images(url)
-    for img in imgs:
-        # для каждого изображения, загрузите его
-        download(img, path)
+    save = open(pathname + "/"+ str(index).zfill(4) + ".jpg", "wb") 
+    save.write(request_img.content) 
+    save.close() 
 
-main("https://yandex.ru/images/search?text=zebra", "images")
+def cmp(image_1: cv2.Mat, image_2: cv2.Mat) -> bool:
+    return image_1 == image_2   
+
+def get_and_download(url, key):
+    imgs = get_all_images(url, key)
+    i = 1 
+    for img in imgs:
+        download(img, key, i)
+        i += 1
+    return i
+    '''k=1
+    while k<i:
+        print("ijdij",os.getcwd())
+        srttmp = os.getcwd
+        str = srttmp + "/"+ "zebra" + "/"+str(k).zfill(4) + ".jpg"
+        print(str)
+        image_1 = cv2.imread('C:/Users/user/python-L-1-/dataset/zebra/0003.jpg')
+        cv2.imshow('window_name', image_1) 
+        cv2.waitKey(0)
+        k = 1200'''
+
+
+def main(url):
+    if not os.path.isdir("dataset"):
+        os.mkdir("dataset")
+    os.chdir("dataset")
+    key1 = "zebra"
+    key2 = "bay horse"
+    amount1 = get_and_download(url, key1)
+    print("Successfully uploaded " + str(amount1) + " "+ key1 + " images.")
+    amount2 = get_and_download(url, key2)
+    print("Successfully uploaded " + str(amount2) + " "+ key2 + " images.")
+    
+    '''image = cv2.imread('C:/Users/user/python-L-1-/dataset/zebra/0003.jpg')  
+    print(image.shape) 
+    #cv2.imshow('window_name', image) 
+    #cv2.waitKey(0)
+
+    image_1 = cv2.imread("dataset/zebra/0010.jpg")
+    image_2 = cv2.imread("dataset/zebra/0020.jpg")
+    tmp = cmp(image_1, image_2)
+    if tmp == False:
+        print("Yes")
+    else:
+        print("No")'''
+
+main("https://yandex.ru/images/")
