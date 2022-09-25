@@ -13,49 +13,49 @@
 #После загрузки всех изображений, необходимо их просмотреть на соответствие классу. 
 #В случае замеченных несоответствий необходимо будет дополнить набор данных до минимального размера. 
 #Для избежания подобных ситуаций рекомендуется загружать изображения с запасом.
-import os, requests
+import os, requests, sys
 from urllib import request
 from re import search
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 
 def is_valid(url):
-    '''Проверяет, является ли url допустимым URL'''
+    """Проверяет, является ли url допустимым URL"""
     parsed = urlparse(url)
     return bool(parsed.netloc) and bool(parsed.scheme)
 
 def get_all_images(url, key):
-    '''Возвращает определенное количество URL‑адресов изображений по одному `url`'''
+    """Возвращает определенное количество URL-адресов изображений по одному `url`"""
     urls = []
     page = 1
     while True:
-        URL = url + "search?p=" + str(page) + "&text=" + key
-        html_page = requests.get(URL, headers={"User-Agent":"Mozilla/5.0"})
+        url_page = f"{url}search?p={str(page)}&text={key}"
+        html_page = requests.get(url_page, headers={"User-Agent":"Mozilla/5.0"})
         html = BeautifulSoup(html_page.content, "html.parser")
         for img in html.find_all("img"):
             img_url = img.attrs.get("src")
             if not img_url:
                 continue
-            img_url = urljoin(URL, img_url) 
+            img_url = urljoin(url_page, img_url) 
             #сделать URL абсолютным, присоединив домен к только что извлеченному URL
             if is_valid(img_url):
                     urls.append(img_url)
         page += 1
-        if len(urls) > 1100: 
+        if len(urls) > 30: 
             break
     return urls
 
 def download(url, pathname, index): 
-    '''Загружаем одно изображение по адресу `url` в папку'''
+    """Загружаем одно изображение по адресу `url` в папку"""
     if not os.path.isdir(pathname):
         os.mkdir(pathname)
     request_img = requests.get(url)
-    save = open(pathname + "/"+ str(index).zfill(4) + ".jpg", "wb") 
+    save = open(f"{pathname}/{str(index).zfill(4)}.jpg", "wb") 
     save.write(request_img.content) 
     save.close()   
 
 def get_and_download(url, key):
-    '''Вызывает основные функции, возвращает кол-во изображений для одного key'''
+    """Вызывает основные функции, возвращает кол-во изображений для одного key"""
     imgs = get_all_images(url, key)
     i = 1 
     for img in imgs:
@@ -69,13 +69,13 @@ def main():
     if not os.path.isdir("dataset"):
         os.mkdir("dataset")
     os.chdir("dataset")
-    KEY1 = "zebra"
     URL = "https://yandex.ru/images/"
+    KEY1 = "zebra"
     KEY2 = "bay horse"
     amount1 = get_and_download(URL, KEY1)
-    print("Successfully uploaded " + str(amount1) + " "+ KEY1 + " images.")
+    print(f"Successfully uploaded {amount1} {KEY1} images.")
     amount2 = get_and_download(URL, KEY2)
-    print("Successfully uploaded " + str(amount2) + " "+ KEY2 + " images.")
+    print(f"Successfully uploaded {amount2} {KEY2} images.")
     
 
 main()
