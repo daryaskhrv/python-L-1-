@@ -62,14 +62,16 @@ def download(url, pathname, index):
 def get_and_download(url, key):
     """Вызывает основные функции, возвращает кол-во изображений для одного key"""
     imgs = get_all_images(url, key)
-    i = 1 
+    i = 0 
     for img in imgs:
         download(img, key, i)
         i += 1
     return i
     
 
-def image_upload(url, keys):
+def image_download(path, url, keys):
+    """Скачивает изображения по каждому ключу из списка"""
+    os.chdir(path)
     if not os.path.isdir("dataset"):
         os.mkdir("dataset")
     os.chdir("dataset")
@@ -82,5 +84,6 @@ def image_upload(url, keys):
 if __name__ == "__main__":
     url = "https://yandex.ru/images/"
     keys = ["zebra", "bay horse"]
-    image_upload(url, keys)
+    path = "C:/Users/user/Desktop"
+    image_download(path, url, keys)
 
