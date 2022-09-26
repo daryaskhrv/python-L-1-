@@ -19,15 +19,15 @@ from re import search
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 
+
 def is_valid(url):
     """Проверяет, является ли url допустимым URL"""
-
     parsed = urlparse(url)
     return bool(parsed.netloc) and bool(parsed.scheme)
 
+
 def get_all_images(url, key):
     """Возвращает определенное количество URL-адресов изображений по одному `url`"""
-
     urls = []
     page = 1
     while True:
@@ -43,23 +43,24 @@ def get_all_images(url, key):
             if is_valid(img_url):
                     urls.append(img_url)
         page += 1
-        if len(urls) > 30: 
+        if len(urls) > 1000: 
             break
     return urls
 
-def download(url, pathname, index): 
-    """Загружаем одно изображение по адресу `url` в папку"""
 
+def download(url, pathname, index): 
+    """Загружает одно изображение по адресу `url` в папку"""
     if not os.path.isdir(pathname):
         os.mkdir(pathname)
     request_img = requests.get(url)
-    save = open(f"{pathname}/{str(index).zfill(4)}.jpg", "wb") 
+    filename = os.path.join(f"{pathname}/{str(index).zfill(4)}.jpg")
+    save = open(filename, "wb") 
     save.write(request_img.content) 
     save.close()   
 
+
 def get_and_download(url, key):
     """Вызывает основные функции, возвращает кол-во изображений для одного key"""
-
     imgs = get_all_images(url, key)
     i = 1 
     for img in imgs:
@@ -68,23 +69,18 @@ def get_and_download(url, key):
     return i
     
 
-
-def main():
+def image_upload(url, keys):
     if not os.path.isdir("dataset"):
         os.mkdir("dataset")
     os.chdir("dataset")
-    URL = "https://yandex.ru/images/"
-    KEY1 = "zebra"
-    KEY2 = "bay horse"
-    amount1 = get_and_download(URL, KEY1)
-    print(f"Successfully uploaded {amount1} {KEY1} images.")
-    amount2 = get_and_download(URL, KEY2)
-    print(f"Successfully uploaded {amount2} {KEY2} images.")
-    
+    for i in range(len(keys)):
+        print(keys[i])
+        amount = get_and_download(url, keys[i])
+        print(f"Successfully uploaded {amount} {keys[i]} images.")
+
+
 if __name__ == "__main__":
-    print("is_valid - ",is_valid.__doc__)
-    print("get_all_images - ",get_all_images.__doc__)
-    print("download - ",download.__doc__)
-    print("get_and_download - ",get_and_download.__doc__)
-    main()
+    url = "https://yandex.ru/images/"
+    keys = ["zebra", "bay horse"]
+    image_upload(url, keys)
 
