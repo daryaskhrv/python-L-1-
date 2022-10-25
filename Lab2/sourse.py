@@ -31,7 +31,7 @@ import csv, os, shutil
     
 def creatAnnotation(path):
     """Creating an annotation for task 1"""
-    file_name = "test_csv.csv"
+    file_name = "task1_csv.csv"
     with open(file_name, "w", encoding="utf-8", newline="") as fh:
         writer = csv.writer(fh, quoting=csv.QUOTE_ALL)
         writer.writerow(["Абсолютный путь", "Относительный путь", "Метка"])
@@ -47,8 +47,22 @@ def creatAnnotation(path):
             print('\n')
         
 
+def task2(path_main, path):
+    file_name = "task2_csv.csv"
+    with open(file_name, "w", encoding="utf-8", newline="") as fh:
+        writer = csv.writer(fh, quoting=csv.QUOTE_ALL)
+        writer.writerow(["Абсолютный путь", "Относительный путь", "Метка"])
+        subfolders = os.listdir(path_main)
+        for subfolder in subfolders:
+            files=os.listdir(os.path.join(path_main,subfolder))
+            for fname in files:
+                shutil.copy(os.path.join(path_main,subfolder,fname),path)
+                os.rename(os.path.join(path,fname),os.path.join(path, f"{subfolder}_{fname}"))
+                writer.writerow([os.path.join(path, f"{subfolder}_{fname}"),os.path.relpath(os.path.join(path, f"{subfolder}_{fname}")),subfolder])
 
 
 if __name__ == "__main__":
-    path = 'C:/Users/user/Desktop/dataset1'
-    creatAnnotation(path)
+    path_main = os.path.join('C:/','Users','user','Desktop','dataset_copy')
+    path1 = 'C:/Users/user/Desktop/dataset1'
+    #creatAnnotation(path_main)
+    task2(path_main, path1)
