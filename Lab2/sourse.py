@@ -15,7 +15,7 @@
 #   пунктов 1–3.
 #5.Написать на основе предыщего пункта классы итераторы (пример ниже).
 
-import csv, os, shutil
+import csv, os, shutil, random
 
 #print('Текущая директория - ',os.getcwd ())
 
@@ -30,7 +30,7 @@ import csv, os, shutil
    # print('\n')
     
 def creatAnnotation(path):
-    """Creating an annotation for task 1"""
+    """Creating an annotation for dataset"""
     file_name = "task1_csv.csv"
     with open(file_name, "w", encoding="utf-8", newline="") as fh:
         writer = csv.writer(fh, quoting=csv.QUOTE_ALL)
@@ -48,6 +48,7 @@ def creatAnnotation(path):
         
 
 def task2(path_main, path):
+    """Copying dataset to another directory (dataset/class_0000.jpg) and creating an annotation"""
     file_name = "task2_csv.csv"
     with open(file_name, "w", encoding="utf-8", newline="") as fh:
         writer = csv.writer(fh, quoting=csv.QUOTE_ALL)
@@ -61,8 +62,27 @@ def task2(path_main, path):
                 writer.writerow([os.path.join(path, f"{subfolder}_{fname}"),os.path.relpath(os.path.join(path, f"{subfolder}_{fname}")),subfolder])
 
 
+def task3(path_main, path):
+    """Copying dataset to another directory (dataset/номер.jpg) and creating an annotation"""
+    file_name = "task3_csv.csv"
+    with open(file_name, "w", encoding="utf-8", newline="") as fh:
+            writer = csv.writer(fh, quoting=csv.QUOTE_ALL)
+            writer.writerow(["Абсолютный путь", "Относительный путь", "Метка"])
+            subfolders = os.listdir(path_main)
+            for subfolder in subfolders:
+                files=os.listdir(os.path.join(path_main,subfolder))
+                for fname in files:
+                    shutil.copy(os.path.join(path_main,subfolder,fname),path)
+                    fname2 = f"{random.randint(0, 10000)}.jpg"
+                    os.rename(os.path.join(path,fname),os.path.join(path, fname2))
+                    writer.writerow([os.path.join(path, fname2),os.path.relpath(os.path.join(path, fname2)), subfolder])
+
+
+
 if __name__ == "__main__":
     path_main = os.path.join('C:/','Users','user','Desktop','dataset_copy')
     path1 = 'C:/Users/user/Desktop/dataset1'
-    #creatAnnotation(path_main)
+    path2 = 'C:/Users/user/Desktop/dataset2'
+    creatAnnotation(path_main)
     task2(path_main, path1)
+    task3(path_main, path2)
