@@ -1,5 +1,4 @@
-import csv, os, shutil, random, pandas
-from itertools import count
+import csv, os, shutil, random
 
 
 class Annotation:
@@ -98,7 +97,7 @@ def task3(path_main: str, path: str, ann: Annotation) -> None:
 
 
 if __name__ == "__main__":
-    path_main = os.path.join('C:/','Users','user','Desktop','dataset_copy') 
+    path_main = os.path.join('C:/','Users','user','Desktop','dataset') 
     path1 = 'C:/Users/user/Desktop/dataset1'
     path2 = 'C:/Users/user/Desktop/dataset2'
     A1 = Annotation("task1_csv.csv")
