@@ -18,66 +18,6 @@
 import csv, os, shutil, random, pandas
 from itertools import count
 
-#print('Текущая директория - ',os.getcwd ())
-
-
-#for dirs, folder, files in os.walk(path):
-    #print('Выбранный каталог - ', dirs)
-    #print('Вложенные папки - ', folder)
-    #print('Файлы в папке - ', files)
-    #for file in files:
-       # print('Полный путь к файлу - ', os.path.join(dirs,file))
-       # print('Относительный путь к файлу - ',os.path.relpath(os.path.join(dirs,file)))
-   # print('\n')
-    
-'''def creatAnnotation(path):
-    """Creating an annotation for dataset"""
-    file_name = "task1_csv.csv"
-    with open(file_name, "w", encoding="utf-8", newline="") as fh:
-        writer = csv.writer(fh, quoting=csv.QUOTE_ALL)
-        writer.writerow(["Абсолютный путь", "Относительный путь", "Метка"])
-        folders = []
-        i=0
-        for dirs, folder, files in os.walk(path):
-            if i==0:
-                folders = folder
-            else:
-                for file in files:
-                    writer.writerow([os.path.join(dirs,file), os.path.relpath(os.path.join(dirs,file)), folders[i-1]])
-            i+=1
-            print('\n')
-        
-
-def task2(path_main, path):
-    """Copying dataset to another directory (dataset/class_0000.jpg) and creating an annotation"""
-    file_name = "task2_csv.csv"
-    with open(file_name, "w", encoding="utf-8", newline="") as fh:
-        writer = csv.writer(fh, quoting=csv.QUOTE_ALL)
-        writer.writerow(["Абсолютный путь", "Относительный путь", "Метка"])
-        subfolders = os.listdir(path_main)
-        for subfolder in subfolders:
-            files=os.listdir(os.path.join(path_main,subfolder))
-            for fname in files:
-                shutil.copy(os.path.join(path_main,subfolder,fname),path)
-                os.rename(os.path.join(path,fname),os.path.join(path, f"{subfolder}_{fname}"))
-                writer.writerow([os.path.join(path, f"{subfolder}_{fname}"),os.path.relpath(os.path.join(path, f"{subfolder}_{fname}")),subfolder])
-
-
-def task3(path_main, path):
-    """Copying dataset to another directory (dataset/номер.jpg) and creating an annotation"""
-    file_name = "task3_csv.csv"
-    with open(file_name, "w", encoding="utf-8", newline="") as fh:
-            writer = csv.writer(fh, quoting=csv.QUOTE_ALL)
-            writer.writerow(["Абсолютный путь", "Относительный путь", "Метка"])
-            subfolders = os.listdir(path_main)
-            for subfolder in subfolders:
-                files=os.listdir(os.path.join(path_main,subfolder))
-                for fname in files:
-                    shutil.copy(os.path.join(path_main,subfolder,fname),path)
-                    fname2 = f"{random.randint(0, 10000)}.jpg"
-                    os.rename(os.path.join(path,fname),os.path.join(path, fname2))
-                    writer.writerow([os.path.join(path, fname2),os.path.relpath(os.path.join(path, fname2)), subfolder])'''
-
 
 class Annotation:
 
@@ -98,6 +38,7 @@ class Annotation:
             fh.close()
 
     def next(self, label: str) -> str:
+        """Returns the next instance of annotation by label without repetition"""
         with open(self.file_name, encoding='utf-8') as r_file:
             file_reader = csv.reader(r_file, delimiter = ",")
             count = 0
@@ -111,6 +52,23 @@ class Annotation:
                         return row[0]
             r_file.close()        
         return None
+
+
+class Iterator:
+
+    def __init__(self, a: Annotation):
+        self.limit = a.number_lines
+        self.ann = a
+        self.counter = 0
+
+    def __next__(self, label)-> str:
+        """Returns the next instance of annotation by label without repetition"""
+        if self.counter < self.limit:
+            copy = self.ann.next(label)
+            self.counter = self.ann.viewed_files
+            return copy
+        else:
+            raise StopIteration
 
 
 def task1(path: str, ann: Annotation) -> None:
@@ -161,15 +119,13 @@ if __name__ == "__main__":
     A2 = Annotation("task2_csv.csv")
     A3 = Annotation("task3_csv.csv")
     task1(path_main, A1)
-    '''
-    task2(path_main, path1, A2)
-    task3(path_main, path2, A3)
-    print(A1.number_lines)
-    '''
-    print(A1.number_lines)
-    print(A1.viewed_files)
-    print(A1.next("bay horse"))
-    print(A1.next("bay horse"))
-    print(A1.next("zebra"))
-    print(A1.next("zebra"))
+    task2(path_main,path1,A2)
+    task3(path_main,path2,A3)
+    iter1 = Iterator(A1)
+    iter2 = Iterator(A2)
+    iter3 = Iterator(A3)
+    print(iter1.__next__("bay horse"))
+    print(iter1.__next__("zebra"))
+    print(iter1.__next__("zebra"))
+    print(iter1.__next__("bay horse"))
     
