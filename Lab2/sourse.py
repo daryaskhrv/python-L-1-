@@ -16,6 +16,7 @@
 #5.Написать на основе предыщего пункта классы итераторы (пример ниже).
 
 import csv, os, shutil, random
+from csv import writer
 
 #print('Текущая директория - ',os.getcwd ())
 
@@ -29,7 +30,7 @@ import csv, os, shutil, random
        # print('Относительный путь к файлу - ',os.path.relpath(os.path.join(dirs,file)))
    # print('\n')
     
-def creatAnnotation(path):
+'''def creatAnnotation(path):
     """Creating an annotation for dataset"""
     file_name = "task1_csv.csv"
     with open(file_name, "w", encoding="utf-8", newline="") as fh:
@@ -75,14 +76,67 @@ def task3(path_main, path):
                     shutil.copy(os.path.join(path_main,subfolder,fname),path)
                     fname2 = f"{random.randint(0, 10000)}.jpg"
                     os.rename(os.path.join(path,fname),os.path.join(path, fname2))
-                    writer.writerow([os.path.join(path, fname2),os.path.relpath(os.path.join(path, fname2)), subfolder])
+                    writer.writerow([os.path.join(path, fname2),os.path.relpath(os.path.join(path, fname2)), subfolder])'''
 
+
+class Annotation:
+    def __init__(self,file_name: str) -> None:
+        self.number_lines = 0
+        self.file_name = file_name
+    def add_line(self, path: str, fname: str, label: str) -> None: #добавление строки в аннотацию
+        with open(self.file_name, "a", encoding="utf-8", newline="") as fh:
+            writer = csv.writer(fh, quoting=csv.QUOTE_ALL)
+            if self.number_lines == 0:
+                writer.writerow(["Абсолютный путь", "Относительный путь", "Метка"])
+                self.number_lines+=1
+            writer.writerow([os.path.join(path, fname),os.path.relpath(os.path.join(path, fname)), label])
+            self.number_lines+=1
+            fh.close()
+
+
+def task1(path: str, ann: Annotation) -> None:
+    """Creating an annotation for main dataset"""
+    folders = []
+    i=0
+    for dirs, folder, files in os.walk(path):
+        if i==0:
+            folders = folder
+        else:
+            for file in files:
+                ann.add_line(dirs,file,folders[i-1])
+        i+=1   
+
+
+def task2(path_main: str, path: str, ann: Annotation) -> None:
+    """Copying dataset to another directory (dataset/class_0000.jpg) and creating an annotation"""
+    subfolders = os.listdir(path_main)
+    for subfolder in subfolders:
+        files=os.listdir(os.path.join(path_main,subfolder))
+        for fname in files:
+            shutil.copy(os.path.join(path_main,subfolder,fname),path)
+            os.rename(os.path.join(path,fname),os.path.join(path, f"{subfolder}_{fname}"))
+            ann.add_line(path, f"{subfolder}_{fname}", subfolder)
+
+
+def task3(path_main: str, path: str, ann: Annotation) -> None:
+    """Copying dataset to another directory (dataset/номер.jpg) and creating an annotation"""
+    subfolders = os.listdir(path_main)
+    for subfolder in subfolders:
+        files=os.listdir(os.path.join(path_main,subfolder))
+        for fname in files:
+            shutil.copy(os.path.join(path_main,subfolder,fname),path)
+            fname2 = f"{random.randint(0, 10000)}.jpg"
+            os.rename(os.path.join(path,fname),os.path.join(path, fname2))
+            ann.add_line(path,fname2,subfolder)
 
 
 if __name__ == "__main__":
-    path_main = os.path.join('C:/','Users','user','Desktop','dataset_copy')
+    path_main = os.path.join('C:/','Users','user','Desktop','dataset_copy') 
     path1 = 'C:/Users/user/Desktop/dataset1'
     path2 = 'C:/Users/user/Desktop/dataset2'
-    creatAnnotation(path_main)
-    task2(path_main, path1)
-    task3(path_main, path2)
+    A1 = Annotation("task1_csv.csv")
+    A2 = Annotation("task2_csv.csv")
+    A3 = Annotation("task3_csv.csv")
+    task1(path_main, A1)
+    task2(path_main, path1, A2)
+    task3(path_main, path2, A3)
