@@ -1,20 +1,3 @@
-#1.Написать скрипт для формирования текстового файла-аннотации собранного датасета. Файл-аннотация 
-#   должен представлять собой csv-файл, в котором в первой колонке будет указан абсолютный путь к файлу, 
-#   во второй колонке относительный путь относительно вашего Python-проекта, третья колонка будет 
-#   содержать текстовое название класса (метку класса), к которому относится данный экземпляр.
-#2.Написать скрипт для копирования датасета в другую директорию таким образом, чтобы имена файлов 
-#   содержали имя класса и его порядковый номер. То есть из dataset/class/0000.jpg должно получиться 
-#   dataset/class_0000.jpg.
-#3.Написать скрипт, создающий копию датасета таким образом, чтобы каждый файл из сходного датасета 
-#   получил случайный номер от 0 до 10000, и датасет представлял собой следующую структуру 
-#   dataset/номер.jpg. Для того чтобы осталась возможность определить принадлежность экземпляра к классу
-#   создать файл-аннотацию (как в пункте 1).
-#4.Написать скрипт, содержащий функцию, получающую на входе метку класса и возвращающую следующий 
-#   экземпляр (путь к нему) этого класса. Экземпляры идут в любом порядке, но не повторяются. Когда 
-#   экземпляры заканчиваются, функция возвращает None. Данная функция должна быть в трёх версиях для 
-#   пунктов 1–3.
-#5.Написать на основе предыщего пункта классы итераторы (пример ниже).
-
 import csv, os, shutil, random, pandas
 from itertools import count
 
@@ -23,7 +6,7 @@ class Annotation:
 
     def __init__(self,file_name: str) -> None:
         self.number_lines = 0
-        self.viewed_files = 0
+        self.viewed_files = 1
         self.file_name = file_name
 
     def add_line(self, path: str, fname: str, label: str) -> None: 
@@ -43,13 +26,14 @@ class Annotation:
             file_reader = csv.reader(r_file, delimiter = ",")
             count = 0
             for row in file_reader:
-                if count <= self.viewed_files:
+                if count < self.viewed_files:
                     count+=1
-                    continue
                 elif self.viewed_files < self.number_lines:
                     self.viewed_files+=1
                     if row[2] == label:
                         return row[0]
+                    else: 
+                        count+=1
             r_file.close()        
         return None
 
@@ -107,6 +91,8 @@ def task3(path_main: str, path: str, ann: Annotation) -> None:
         for fname in files:
             shutil.copy(os.path.join(path_main,subfolder,fname),path)
             fname2 = f"{random.randint(0, 10000)}.jpg"
+            while os.path.isdir(os.path.join(path, fname2)):
+                fname2 = f"{random.randint(0, 10000)}.jpg"
             os.rename(os.path.join(path,fname),os.path.join(path, fname2))
             ann.add_line(path,fname2,subfolder)
 
@@ -125,6 +111,7 @@ if __name__ == "__main__":
     iter2 = Iterator(A2)
     iter3 = Iterator(A3)
     print(iter1.__next__("bay horse"))
+    print(iter1.__next__("zebra"))
     print(iter1.__next__("zebra"))
     print(iter1.__next__("zebra"))
     print(iter1.__next__("bay horse"))
