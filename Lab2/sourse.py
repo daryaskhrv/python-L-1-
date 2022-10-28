@@ -15,8 +15,8 @@
 #   пунктов 1–3.
 #5.Написать на основе предыщего пункта классы итераторы (пример ниже).
 
-import csv, os, shutil, random
-from csv import writer
+import csv, os, shutil, random, pandas
+from itertools import count
 
 #print('Текущая директория - ',os.getcwd ())
 
@@ -80,10 +80,14 @@ def task3(path_main, path):
 
 
 class Annotation:
+
     def __init__(self,file_name: str) -> None:
         self.number_lines = 0
+        self.viewed_files = 0
         self.file_name = file_name
-    def add_line(self, path: str, fname: str, label: str) -> None: #добавление строки в аннотацию
+
+    def add_line(self, path: str, fname: str, label: str) -> None: 
+        """Addind a line to an annotation"""
         with open(self.file_name, "a", encoding="utf-8", newline="") as fh:
             writer = csv.writer(fh, quoting=csv.QUOTE_ALL)
             if self.number_lines == 0:
@@ -92,6 +96,21 @@ class Annotation:
             writer.writerow([os.path.join(path, fname),os.path.relpath(os.path.join(path, fname)), label])
             self.number_lines+=1
             fh.close()
+
+    def next(self, label: str) -> str:
+        with open(self.file_name, encoding='utf-8') as r_file:
+            file_reader = csv.reader(r_file, delimiter = ",")
+            count = 0
+            for row in file_reader:
+                if count <= self.viewed_files:
+                    count+=1
+                    continue
+                elif self.viewed_files < self.number_lines:
+                    self.viewed_files+=1
+                    if row[2] == label:
+                        return row[0]
+            r_file.close()        
+        return None
 
 
 def task1(path: str, ann: Annotation) -> None:
@@ -109,6 +128,8 @@ def task1(path: str, ann: Annotation) -> None:
 
 def task2(path_main: str, path: str, ann: Annotation) -> None:
     """Copying dataset to another directory (dataset/class_0000.jpg) and creating an annotation"""
+    if not os.path.isdir(path):
+        os.mkdir(path)
     subfolders = os.listdir(path_main)
     for subfolder in subfolders:
         files=os.listdir(os.path.join(path_main,subfolder))
@@ -120,6 +141,8 @@ def task2(path_main: str, path: str, ann: Annotation) -> None:
 
 def task3(path_main: str, path: str, ann: Annotation) -> None:
     """Copying dataset to another directory (dataset/номер.jpg) and creating an annotation"""
+    if not os.path.isdir(path):
+        os.mkdir(path)
     subfolders = os.listdir(path_main)
     for subfolder in subfolders:
         files=os.listdir(os.path.join(path_main,subfolder))
@@ -138,5 +161,15 @@ if __name__ == "__main__":
     A2 = Annotation("task2_csv.csv")
     A3 = Annotation("task3_csv.csv")
     task1(path_main, A1)
+    '''
     task2(path_main, path1, A2)
     task3(path_main, path2, A3)
+    print(A1.number_lines)
+    '''
+    print(A1.number_lines)
+    print(A1.viewed_files)
+    print(A1.next("bay horse"))
+    print(A1.next("bay horse"))
+    print(A1.next("zebra"))
+    print(A1.next("zebra"))
+    
