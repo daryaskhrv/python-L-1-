@@ -9,7 +9,7 @@ class AnnotationIterator:
 
     def __next__(self, label)-> str:
         """Returns the next instance of annotation by label without repetition"""
-        if self.counter < self.ann.number_lines:
+        if self.counter < (self.ann.number_lines-1):
             copy = self.ann.next(label)
             self.counter = self.ann.viewed_files
             return copy
