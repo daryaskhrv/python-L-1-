@@ -12,7 +12,6 @@ def add_number_class (df: pd.DataFrame) -> None:
         labels_number.append(int(df['label'].iloc[i] == 'bay horse'))
         i+=1
     df["numerical_class"] = labels_number
-    #df.to_csv('new.csv')
 
 
 def filter_labels(df: pd.DataFrame, label: str) -> pd.DataFrame:
@@ -77,10 +76,10 @@ def draw_histogram(df: pd.DataFrame, label: str) -> None:
 
 if __name__ == "__main__":
     df = pd.read_csv("Lab4/data.csv", usecols = ['Абсолютный путь','Метка'])
-    df = df.rename(columns={'Абсолютный путь': 'absolute_path', 'Метка': 'label'})
+    df = df.rename(columns={'Абсолютный путь': 'absolute_path', 'Метка': 'label'}) 
+    add_number_class(df)
     add_columns_size(df)
-    draw_histogram(df, "zebra")
-    #df.to_csv('result.csv')
-    #add_number_class(df)
-    #df_label = filter_labels(df, 'zebra')
-    
+    df.to_csv('result.csv')
+    filtered_df = filter_options(df, 'zebra', 350, 350)
+    print(filtered_df)
+    draw_histogram(df, "zebra")  
