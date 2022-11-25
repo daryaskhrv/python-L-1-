@@ -45,7 +45,7 @@ def add_columns_size(df: pd.DataFrame)-> None:
     df["channels"] = channels
 
 
-def group_df(df: pd.DataFrame):
+def group_df(df: pd.DataFrame)-> tuple:
     """Calculating the number of pixels and grouping DataFrame"""
     df['pixels'] = df['width'] * df['height']
     return df.groupby('label').max(), df.groupby('label').min(), df.groupby('label').mean()
@@ -56,25 +56,31 @@ def histogram_build(df: pd.DataFrame, label: str) -> list:
     tmp = filter_labels(df, label)
     image_path = np.random.choice(tmp.absolute_path.to_numpy())
     image = cv2.imread(image_path)
-    '''img_height, img_width, img_channels = image.shape
-    hist0 = cv2.calcHist([image], [0], None, [256], [0, 256]) #/ (img_height * img_width)
-    hist1 = cv2.calcHist([image], [1], None, [256], [0, 256]) #/ (img_height * img_width)
-    hist2 = cv2.calcHist([image], [2], None, [256], [0, 256]) #/ (img_height * img_width)
-    return [hist0, hist1, hist2]'''
-    return [cv2.calcHist([image], [0], None, [256], [0, 256]),
-            cv2.calcHist([image], [1], None, [256], [0, 256]),
-            cv2.calcHist([image], [2], None, [256], [0, 256])]
+    hist = []
+    for i in range(3):
+        hist.append(cv2.calcHist([image],[i],None,[256],[0,256]))
+    return hist
 
 
-
+def draw_histogram(df: pd.DataFrame, label: str) -> None:
+    """Histogram display"""
+    hist = histogram_build(df, label)
+    colors = ['b', 'g', 'r']
+    for i in range(3):
+        plt.plot(hist[i], color=colors[i])
+    plt.title('Image Histogram')
+    plt.xlabel('Intensity color')
+    plt.ylabel('Density pixel')
+    plt.xlim([0, 256])
+    plt.show()
 
 
 if __name__ == "__main__":
     df = pd.read_csv("Lab4/data.csv", usecols = ['Абсолютный путь','Метка'])
     df = df.rename(columns={'Абсолютный путь': 'absolute_path', 'Метка': 'label'})
     add_columns_size(df)
-
-    df.to_csv('result.csv')
+    draw_histogram(df, "zebra")
+    #df.to_csv('result.csv')
     #add_number_class(df)
     #df_label = filter_labels(df, 'zebra')
     
