@@ -5,7 +5,8 @@ import cv2
 
 
 def add_number_class (df: pd.DataFrame) -> None:
-    """Adding a column with numeric labels"""
+    """Adding a column with numeric labels
+       :df: - initial dataframe"""
     i=0
     labels_number = []
     while i < len (df):
@@ -15,21 +16,28 @@ def add_number_class (df: pd.DataFrame) -> None:
 
 
 def filter_labels(df: pd.DataFrame, label: str) -> pd.DataFrame:
-    """Create a new indexed dataframe by label"""
+    """Create a new indexed dataframe by label
+       :df: - initial dataframe
+       :label: - picture type"""
     tmp = df[df.label == label]
     tmp.reset_index(drop=True, inplace=True)
     return tmp
 
 
 def filter_options(df: pd.DataFrame, label: str, max_height: int, max_width: int) -> pd.DataFrame:
-    """Create a new indexed dataframe by label and maximum sizes"""
+    """Create a new indexed dataframe by label and maximum sizes
+       :df: - initial dataframe
+       :label: - picture type
+       :max_height: - maximum height value
+       :max_width: - maximum width value"""
     tmp = df[((df.label == label) & (df.width <= max_width) & (df.height <= max_height))]
     tmp.reset_index(drop=True, inplace=True)
     return tmp
 
 
 def add_columns_size(df: pd.DataFrame)-> None:
-    """Add image information to the DataFrame"""
+    """Add image information to the DataFrame
+       :df: - initial dataframe"""
     width=[]
     height=[]
     channels=[]
@@ -45,24 +53,30 @@ def add_columns_size(df: pd.DataFrame)-> None:
 
 
 def group_df(df: pd.DataFrame)-> tuple:
-    """Calculating the number of pixels and grouping DataFrame"""
+    """Calculating the number of pixels and grouping DataFrame
+       :df: - initial dataframe"""
     df['pixels'] = df['width'] * df['height']
     return df.groupby('label').max(), df.groupby('label').min(), df.groupby('label').mean()
 
 
 def histogram_build(df: pd.DataFrame, label: str) -> list:
-    """Build a histogram from a random image"""
+    """Build a histogram from a random image
+       :df: - initial dataframe
+       :label: - picture type"""
     tmp = filter_labels(df, label)
     image_path = np.random.choice(tmp.absolute_path.to_numpy())
     image = cv2.imread(image_path)
+    img_height, img_width, img_channels = image.shape
     hist = []
     for i in range(3):
-        hist.append(cv2.calcHist([image],[i],None,[256],[0,256]))
+        hist.append(cv2.calcHist([image],[i],None,[256],[0,256])/ (img_height * img_width))
     return hist
 
 
 def draw_histogram(df: pd.DataFrame, label: str) -> None:
-    """Histogram display"""
+    """Histogram display
+       :df: - initial dataframe
+       :label: - picture type"""
     hist = histogram_build(df, label)
     colors = ['b', 'g', 'r']
     for i in range(3):
